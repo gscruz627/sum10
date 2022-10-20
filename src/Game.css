@@ -1,0 +1,50 @@
+
+.center{
+    background-color: #4c576d;
+    width: min(100%, 500px);
+    margin: 5rem auto 3rem auto;
+    padding:0.5rem 0 1rem 0;
+    border-radius:15px;
+}
+.answer{
+    font-size:48px;
+    font-weight:800;
+    margin: 5rem auto 1rem auto
+}
+.operator, .number{
+    font-size:36px;
+    display:inline-block;
+    margin:0 0.5rem;
+    line-height: 0.8;
+}
+.operator{
+    color:white;
+    font-weight: bolder;
+    border-radius:25%;
+    background-color:rgba(59, 111, 131, 0.334);
+    font-size:36px;
+    padding: 0.5rem 0;
+    cursor:pointer;
+    border:1px solid white;
+    vertical-align: middle;
+    text-align: center;
+    height:55px;
+    width:60px;
+    margin-top:-1rem;
+    transition: all 0.5s ease-out;
+}
+.operator p{
+    margin-top:0px;
+}
+.operator:hover{
+    background-color: #ffffff;
+    color:#4c576d;
+}
+.sub-center{
+    margin-top:0;
+    display:none;
+}
+.operator.active{
+    background-color:white;
+    color:#4c576d;
+}
