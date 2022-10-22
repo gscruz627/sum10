@@ -1,10 +1,12 @@
 import React from 'react'
 import {useState, useEffect} from 'react'
 import "./Game.css";
-
+import levels from './levels';
+import LevelButton from './components/LevelButton';
 const Game = () => {
     const [answer, setAnswer] = useState("?");
-
+    const [level, setLevel] = useState(1);
+    const [maxlevel, setMaxLevel] = useState(1);
 
     const [currentNumber, setCurrentNumber] = useState({number: null, numID: null});
     const [number1, setNumber1] = useState("1");
@@ -30,7 +32,6 @@ const Game = () => {
         }
       }
       let strToEval = eval(number1 + l[0] + number2 + l[1] + number3 + l[2] + number4 );
-      console.log((number1 + l[0] + number2 + l[1] + number3 + l[2] + number4 ))
       setAnswer(strToEval);
     
       if(countDecimals(strToEval) > 3){
@@ -38,35 +39,69 @@ const Game = () => {
       }
     }
 
+    const gameReachesTen = () => {
+      document.querySelector(".answer").style.color = "#10FF10";
+      document.querySelector(".cover").style.zIndex = "1";
+      document.querySelector(".center").style.border = "3px solid #10FF10"
+      setTimeout( () => { 
+        document.querySelector(".cover").style.zIndex = "-1";
+        document.querySelector(".center").style.border = "none";
+        setAnswer(0);
+        document.querySelector(".answer").style.color = "white";
+        let ihavenoideawhythelevelhereisnotworking = `lvl${level}`
+        document.getElementById(ihavenoideawhythelevelhereisnotworking).style.backgroundColor = "green";
+        setMaxLevel(level+1);
+        changeLevel(level+1, true);
+      }, 3000)
+    }
     useEffect( () => {
       if (operator1 !== "" && operator2 !== "" && operator3 !== ""){
+        if (answer === 10){
+          gameReachesTen();
+        } else {
+          document.querySelector(".answer").style.color = "white";
+        }
         logic(operator1, operator2, operator3);
       }
-    }, [operator1, operator2, operator3, number1, number2, number3, number4]);
+    }, [operator1, operator2, operator3, number1, number2, number3, number4, answer]);
 
     const holdBtn = (op) => {
-      console.log(op);
-      console.log(currentOperator);
-      console.log(operator1);
-      console.log(operator2);
-      console.log(operator3);
       switch(currentOperator){
-        case "op1": setOperator1(op); console.log(operator1); break;
+        case "op1": setOperator1(op); break;
         case "op2": setOperator2(op); break;
         case "op3": setOperator3(op); break;
       }
       }
     const subcenterAppear = [{ transform: 'scale(0)' }, {transform: 'scale(1)'}];
-    const subcenterDissapear = [{transform: 'scale(1)'}, {transform: 'scale(0)'}];
-    let subcenter = document.querySelector(".sub-center");
-    
+    const subcenterDissapear = [{transform: 'scale(1)'}, {transform: 'scale(0)'}]; 
+    const changeLevel = (lvl, passed) => {
+      if(maxlevel >= lvl || passed){
+        setLevel(lvl);
+        setNumber1(levels[lvl-1].number1)
+        setNumber2(levels[lvl-1].number2)
+        setNumber3(levels[lvl-1].number3)
+        setNumber4(levels[lvl-1].number4)
+        setOperator1("");
+        setOperator2("");
+        setOperator3("");
+        setCurrentNumber("");
+        setAnswer("?");
+      }
+      else{
+        alert("Complete previous levels first")
+      }
+      
+    }
+
+    // Handle the change of the numbers order, it is called when the user clicks on a number
+    // to change or if the user is 'droping' the number onto a new sport.
+    // n denotes the number itself being clicked
+    // nID denotes the 'id' attribute of the html element
     const handleNumberChange = (n, nID) => {
       if (!(currentNumber.numID)){
         setCurrentNumber({number:n, numID:nID});
         document.querySelector(`#${nID}`).style.color = "#00FF00";
-        console.log(currentNumber.numID + " " + currentNumber.number)
       } else{
-        console.log(currentNumber.numID)
         document.querySelector(`#${currentNumber.numID}`).style.color = "white";
         switch(currentNumber.numID){
           case "n1": setNumber1(n); break;
@@ -131,6 +166,7 @@ const Game = () => {
     }
   return (
     <>
+    <div className="cover"></div>
     <div className="center">
       <h1>4 to 10</h1>
         <div className="answer"><p>{answer}</p></div>
@@ -141,10 +177,7 @@ const Game = () => {
         <div className="number" id="n3" onClick={() => handleNumberChange(number3, "n3")}><p>{number3}</p></div>
         <div className="operator" id="op3" onClick={() => handleClickOperator("op3")}><p>{operator3}</p></div>
         <div className="number" id="n4" onClick={() => handleNumberChange(number4, "n4")}><p>{number4}</p></div>
-        
-        {/*
-        <button onClick={() => {logic(operator1, operator2, operator3)}}>logic</button>
-        */}
+
     </div>
     <div className="sub-center">
       <div className="operator" onClick={() => {holdBtn("+")}}><p>+</p></div>
@@ -152,6 +185,14 @@ const Game = () => {
       <div className="operator" onClick={() => {holdBtn("×")}}><p>×</p></div>
       <div className="operator" onClick={() => {holdBtn("÷")}}><p>÷</p></div>
     </div>
+        <div className="levelContainer">
+      {levels.map( (lvl, idx) => {
+        return(
+        <LevelButton i={idx+1} changeLevel={changeLevel}/>
+        )
+      })}
+      </div>
+
     </>
   )
 }
