@@ -1,0 +1,11 @@
+.number {
+    font-size: 36px;
+    display: inline-block;
+    margin: 0 0.5rem;
+    line-height: 0.8;
+    cursor: pointer;
+    transition: all 0.3s ease-out;
+}
+.number:hover {
+    color: rgb(178, 178, 178);
+}
