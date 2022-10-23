@@ -92,8 +92,6 @@ const Game = () => {
       //Level is changed for the next level and a new maxLevel is set.
       DOManswer.style.color = "white";
       document.getElementById(`lvl${level}`).style.backgroundColor = "green";
-      console.log("this will be the next max level" + Number(level + 1));
-      console.log("this is the max level: " + maxlevel);
       if (Number(level + 1) >= maxlevel) setMaxLevel(level + 1);
       changeLevel(level + 1, true);
     }, 3000);
@@ -121,7 +119,6 @@ const Game = () => {
     let cutOP = currentOperator[2] - 1;
     let newOperators = [...operators];
     newOperators[cutOP].op = op;
-    console.log(newOperators);
     setOperators(newOperators);
   };
   const subcenterAppear = [
@@ -151,7 +148,6 @@ const Game = () => {
       setCurrentNumber("");
       setAnswer("?");
     } else {
-      console.log(maxlevel);
       alert("Complete previous levels first");
     }
   };
@@ -167,26 +163,9 @@ const Game = () => {
     } else {
       document.querySelector(`#${currentNumber.numID}`).style.color = "white";
       let newNumbers = numbers;
-      console.log(
-        `The current values are: ID:${currentNumber.numID}, value:${currentNumber.number}`
-      );
-      console.log(`Values of tile clicked: ID:${nID}, value:${n}`);
-      console.log(newNumbers[nID[1] - 1].number);
-      let a = currentNumber.numID;
-      console.log(
-        `I am changing the number ${newNumbers[nID[1] - 1].number} for ${
-          currentNumber.number
-        }`
-      );
-      console.log(
-        `Iam changin the number ${
-          newNumbers[currentNumber.numID.substring(1, 2) - 1].number
-        } for ${n}`
-      );
 
       newNumbers[currentNumber.numID.substring(1, 2) - 1].number = n;
       newNumbers[nID[1] - 1].number = currentNumber.number;
-      console.log(currentNumber.numID[1]);
 
       setNumbers(newNumbers);
       setCurrentNumber({ number: null, numID: null });
