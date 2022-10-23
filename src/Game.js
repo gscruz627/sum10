@@ -1,89 +1,130 @@
+/*
+  Made by Gustavo La Cruz
+  Not copyrighted under any licence
+  Feel free to use, copy, redistribute the code (or the game)
+
+  I am fully aware the code could be way refactored
+  feel free to contribute it / propose solutions in the Github page
+*/
+
 import React from 'react'
 import {useState, useEffect} from 'react'
 import "./Game.css";
 import levels from './levels';
 import LevelButton from './components/LevelButton';
+import Operator from './components/Operator';
+import Number from './components/Number';
+
 const Game = () => {
+
+  // Sets the states
     const [answer, setAnswer] = useState("?");
     const [level, setLevel] = useState(1);
     const [maxlevel, setMaxLevel] = useState(1);
 
     const [currentNumber, setCurrentNumber] = useState({number: null, numID: null});
-    const [number1, setNumber1] = useState("1");
-    const [number2, setNumber2] = useState("5");
-    const [number3, setNumber3] = useState("2");
-    const [number4, setNumber4] = useState("3");
+    const [numbers, setNumbers] = useState( [
+      {number: levels[0].number1, numID: "n1"}, {number: levels[0].number2, numID: "n2"},
+      {number: levels[0].number3, numID: "n3"}, {number: levels[0].number4, numID: "n4"},
+    ])
 
     const [currentOperator, setCurrentOperator] = useState("");
-    const [operator1, setOperator1] = useState("");
-    const [operator2, setOperator2] = useState("");
-    const [operator3, setOperator3] = useState("");
+    const operatorList = ["+", "-", "×", "÷"]
+    const [operators, setOperators] = useState( [
+      {op: "", opID: "op1"}, {op: "", opID: "op2"}, {op: "", opID: "op3"}
+    ])
 
-    const logic = (op1, op2, op3) => {
+    //Sets the element queries to make the easier to access to
+    const DOManswer = document.querySelector(".answer");
+    const DOMcenter = document.querySelector(".center");
+    const DOMcover = document.querySelector(".cover");
+
+    // logic is the main core of the game, returns a change on answer based on current inputs
+    const logic = () => {
       
-      let l = [op1, op2, op3];
-      
-      for (let i = 0; i < l.length; i++){
-        if (l[i] === "×"){
-          l[i] = "*";
+      //Checks if any operator is times or divide and covert to valid arithmetic operators
+      let evalOperators = [];
+      for(let i = 0; i < operators.length; i++){
+        if(operators[i].op === "×"){
+          evalOperators.push("*")
         }
-        if (l[i] === "÷"){
-          l[i] = "/";
-        }
+        else if(operators[i].op === "÷"){
+          evalOperators.push("/")
+        } else{
+          evalOperators.push(operators[i].op)
+        }}
+
+      //eval is used to convert operators with numbers and build an arithmetic operation
+      let strToEval = eval(numbers[0].number + evalOperators[0] + numbers[1].number + 
+      evalOperators[1] + numbers[2].number + evalOperators[2] + numbers[3].number);
+      if(String(strToEval).indexOf(".")>-1){
+        strToEval = strToEval.toFixed(2);
       }
-      let strToEval = eval(number1 + l[0] + number2 + l[1] + number3 + l[2] + number4 );
       setAnswer(strToEval);
     
-      if(countDecimals(strToEval) > 3){
-        setAnswer(Number(strToEval).toFixed(2))
-      }
+      //If answer is a repeating decimal, round to 2 decimals.
+
     }
 
+    //Responsible for managing the end of the game in success.
     const gameReachesTen = () => {
-      document.querySelector(".answer").style.color = "#10FF10";
-      document.querySelector(".cover").style.zIndex = "1";
-      document.querySelector(".center").style.border = "3px solid #10FF10"
+
+      //Once you win, the screen is not clickeable (zIndex), and the answer and border are green
+      DOManswer.style.color = "#10FF10";
+      DOMcover.style.zIndex = "1";
+      DOMcenter.style.border = "3px solid #10FF10"
+
+      //After three seconds, screen is  clickeable again,
       setTimeout( () => { 
-        document.querySelector(".cover").style.zIndex = "-1";
-        document.querySelector(".center").style.border = "none";
-        setAnswer(0);
-        document.querySelector(".answer").style.color = "white";
-        let ihavenoideawhythelevelhereisnotworking = `lvl${level}`
-        document.getElementById(ihavenoideawhythelevelhereisnotworking).style.backgroundColor = "green";
+
+        DOMcover.style.zIndex = "-1";
+        DOMcenter.style.border = "none";
+
+        //Level is changed for the next level and a new maxLevel is set.
+        DOManswer.style.color = "white";
+        document.getElementById(`lvl${level}`).style.backgroundColor = "green";
         setMaxLevel(level+1);
         changeLevel(level+1, true);
       }, 3000)
     }
+
+    //UseEffect runs on any operator or number change and executes logic
     useEffect( () => {
-      if (operator1 !== "" && operator2 !== "" && operator3 !== ""){
+
+      //Checks if all operators have a value, and then if the answer equates to ten
+      if (operators[0].op !== "" && operators[1].op !== "" && operators[2].op !== ""){
         if (answer === 10){
           gameReachesTen();
         } else {
-          document.querySelector(".answer").style.color = "white";
+          DOManswer.style.color = "white";
         }
-        logic(operator1, operator2, operator3);
+        logic();
       }
-    }, [operator1, operator2, operator3, number1, number2, number3, number4, answer]);
+    }, [operators, numbers, answer]);
 
+    //This function runs to select the operator, it will set
     const holdBtn = (op) => {
-      switch(currentOperator){
-        case "op1": setOperator1(op); break;
-        case "op2": setOperator2(op); break;
-        case "op3": setOperator3(op); break;
-      }
+      let cutOP = currentOperator[2]-1;
+      let newOperators = [...operators];
+      newOperators[cutOP].op = op;
+      console.log(newOperators)
+      setOperators(newOperators);
       }
     const subcenterAppear = [{ transform: 'scale(0)' }, {transform: 'scale(1)'}];
     const subcenterDissapear = [{transform: 'scale(1)'}, {transform: 'scale(0)'}]; 
     const changeLevel = (lvl, passed) => {
       if(maxlevel >= lvl || passed){
         setLevel(lvl);
-        setNumber1(levels[lvl-1].number1)
-        setNumber2(levels[lvl-1].number2)
-        setNumber3(levels[lvl-1].number3)
-        setNumber4(levels[lvl-1].number4)
-        setOperator1("");
-        setOperator2("");
-        setOperator3("");
+        let newNumbers = numbers;
+        let newOperators = operators;
+        for(let i = 0; i < 4; i++){
+          newNumbers[i].number = levels[lvl-1][`number${i+1}`];
+          if(i<3){
+            newOperators[i].op = "";
+          }
+        }
+        setNumbers(newNumbers);
+        setOperators(newOperators);
         setCurrentNumber("");
         setAnswer("?");
       }
@@ -103,7 +144,27 @@ const Game = () => {
         document.querySelector(`#${nID}`).style.color = "#00FF00";
       } else{
         document.querySelector(`#${currentNumber.numID}`).style.color = "white";
+        let newNumbers = numbers;
+        console.log(`The current values are: ID:${currentNumber.numID}, value:${currentNumber.number}`)
+        console.log(`Values of tile clicked: ID:${nID}, value:${n}`)
+        console.log(newNumbers[nID[1]-1].number);
+        let a = currentNumber.numID;
+        console.log(a.substring(1,2));
+        console.log(currentNumber.numID.substring(1,2))
+        console.log(newNumbers[a.substring(1,2)]);
+        console.log(currentNumber.number);
+        console.log(currentNumber.numID);
+        console.log(n);
+        
+
+        newNumbers[currentNumber.numID.substring(1,2)].number = n;
+        newNumbers[nID[1]-1].number = currentNumber.number;
+        console.log((currentNumber.numID)[1])
+
+        setNumbers(newNumbers);
+        /*
         switch(currentNumber.numID){
+
           case "n1": setNumber1(n); break;
           case "n2": setNumber2(n); break;
           case "n3": setNumber3(n); break;
@@ -115,34 +176,12 @@ const Game = () => {
           case "n3": setNumber3(currentNumber.number); break;
           case "n4": setNumber4(currentNumber.number);
         }
+        */
         setCurrentNumber({number:null, numID:null});
       }
     }
 
-    // Credits to David Wyness in StackOverFlow.
-    function countDecimals(decimal)
-    {
-    var num = parseFloat(decimal); // First convert to number to check if whole
-
-    if(Number.isInteger(num) === true)
-      {
-      return 0;
-      }
-
-    var text = num.toString(); // Convert back to string and check for "1e-8" numbers
-    
-    if(text.indexOf('e-') > -1)
-      {
-      var [base, trail] = text.split('e-');
-      var deg = parseInt(trail, 10);
-      return deg;
-      }
-    else
-      {
-      var index = text.indexOf(".");
-      return text.length - index - 1; // Otherwise use simple string function to count
-      }
-    }
+    //This changes the currentOperator being selected, it will open the operator selector.
     const handleClickOperator = (opID) => {
       let subcenter = document.querySelector(".sub-center");
       if (currentOperator === ""){
@@ -164,36 +203,53 @@ const Game = () => {
         setCurrentOperator(opID);
       }
     }
+
+    //This is the central part of the game, 4 numbers and 3 operators.
+    //This is an array of JSX Components, numbers and operators, functions and values are passed
+    //to the children
+    let operativeNumsAndOps = [];
+      operativeNumsAndOps = [];
+    for(let i = 0; i < 4; i++){
+      operativeNumsAndOps.push(
+      <>
+        <Number id={numbers[i].numID}
+        handleNumberChange={handleNumberChange}
+        num={numbers[i].number}/>
+
+        {i !== 3 && 
+          <Operator key={operators[i].opID} id={operators[i].opID} 
+          handleClickOperator={handleClickOperator} op={operators[i].op}
+          currentOP={operators[i].op} />
+        }
+        </>
+      )
+    }
+  
+  // Display the game
   return (
+
     <>
-    <div className="cover"></div>
-    <div className="center">
-      <h1>4 to 10</h1>
+      <div className="cover"></div>
+      <div className="center">
+        <h1>4 to 10</h1>
         <div className="answer"><p>{answer}</p></div>
-        <div className="number" id="n1" onClick={() => handleNumberChange(number1, "n1")}><p>{number1}</p></div>
-        <div className="operator" id="op1" onClick={() => handleClickOperator("op1")}><p>{operator1}</p></div>
-        <div className="number" id="n2" onClick={() => handleNumberChange(number2, "n2")}><p>{number2}</p></div>
-        <div className="operator" id="op2" onClick={() => handleClickOperator("op2")}><p>{operator2}</p></div>
-        <div className="number" id="n3" onClick={() => handleNumberChange(number3, "n3")}><p>{number3}</p></div>
-        <div className="operator" id="op3" onClick={() => handleClickOperator("op3")}><p>{operator3}</p></div>
-        <div className="number" id="n4" onClick={() => handleNumberChange(number4, "n4")}><p>{number4}</p></div>
-
-    </div>
-    <div className="sub-center">
-      <div className="operator" onClick={() => {holdBtn("+")}}><p>+</p></div>
-      <div className="operator" onClick={() => {holdBtn("-")}}><p>-</p></div>
-      <div className="operator" onClick={() => {holdBtn("×")}}><p>×</p></div>
-      <div className="operator" onClick={() => {holdBtn("÷")}}><p>÷</p></div>
-    </div>
-        <div className="levelContainer">
-      {levels.map( (lvl, idx) => {
-        return(
-        <LevelButton i={idx+1} changeLevel={changeLevel}/>
-        )
-      })}
+        {operativeNumsAndOps}
       </div>
-
+      <div className="sub-center">
+        {operatorList.map( (operator) => {
+          return( <Operator holdBtn={holdBtn}children={operator} id={operator}></Operator>
+          )
+        })}
+      </div>
+      <div className="levelContainer">
+        {levels.map( (lvl, idx) => {
+          return(
+            <LevelButton i={idx+1} changeLevel={changeLevel} level={level}/>
+          )
+        })}
+      </div>
     </>
+
   )
 }
 
