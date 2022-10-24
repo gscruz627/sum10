@@ -27,3 +27,10 @@
     margin-top: 0;
     display: none;
 }
+/*
+@media only screen and (max-width: 576px) {
+    .center, .cover{
+        width:100%;
+    }
+    
+  }*/
