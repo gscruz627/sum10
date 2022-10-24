@@ -2,7 +2,7 @@ const levels = [
   { number1: 1, number2: 5, number3: 2, number4: 3 },
   { number1: 0, number2: 0, number3: 5, number4: 5 },
   { number1: 5, number2: 4, number3: 0, number4: 6 },
-  { number1: 5, number2: 2, number3: 5, number4: 1 },
+  { number1: 5, number2: 0, number3: 5, number4: 1 },
   { number1: 8, number2: 3, number3: 2, number4: 3 },
   { number1: 4, number2: 2, number3: 4, number4: 3 },
   { number1: 1, number2: 2, number3: 3, number4: 4 },
